@@ -54,5 +54,5 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan *project* ini di komputer l
 
 **1. Clone Repository**
 ```bash
-git clone [https://github.com/username-kamu/balike-lost-and-found.git](https://github.com/isnainoo/balike-lost-and-found.git)
+git clone [https://github.com/isnainoo/balike-lost-and-found.git](https://github.com/isnainoo/balike-lost-and-found.git)
 cd balike-lost-and-found
