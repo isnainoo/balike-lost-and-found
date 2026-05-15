@@ -10,7 +10,7 @@
 
 <br />
 
-**Balike** adalah platform aplikasi web modern yang dirancang untuk mempermudah masyarakat (khususnya area Surakarta/UMS) dalam melaporkan, mencari, dan mengembalikan barang yang hilang. Dengan antarmuka yang bersih dan fitur pencocokan pintar, Balike menghubungkan penemu barang dengan pemilik sahnya secara aman dan efisien.
+**Balike** adalah platform aplikasi web modern yang dirancang untuk mempermudah masyarakat khususnya area Surakarta dalam melaporkan, mencari, dan mengembalikan barang yang hilang. Dengan antarmuka yang bersih dan fitur pencocokan pintar, Balike menghubungkan penemu barang dengan pemilik sahnya secara aman dan efisien.
 
 ---
 
@@ -40,19 +40,3 @@
 - JSON Web Token (Autentikasi API)
 
 ---
-
-## 🚀 Panduan Instalasi (Local Development)
-
-Ikuti langkah-langkah di bawah ini untuk menjalankan *project* ini di komputer lokal Anda.
-
-### Persyaratan Sistem
-- [Node.js](https://nodejs.org/) (Versi 18+ direkomendasikan)
-- [MySQL](https://www.apachefriends.org/index.html) (XAMPP / Laragon)
-- Git
-
-### Langkah Instalasi
-
-**1. Clone Repository**
-```bash
-git clone [https://github.com/isnainoo/balike-lost-and-found.git](https://github.com/isnainoo/balike-lost-and-found.git)
-cd balike-lost-and-found
