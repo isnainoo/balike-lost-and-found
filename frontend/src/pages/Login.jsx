@@ -21,7 +21,6 @@ const Login = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      // PENGECEKAN ROLE YANG DIPERBAIKI DI SINI:
       if (response.data.user.role === 'admin' || response.data.user.role === 'super_admin') {
         navigate('/admin');
       } else {

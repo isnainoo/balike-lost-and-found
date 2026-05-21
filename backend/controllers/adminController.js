@@ -16,8 +16,6 @@ export const getPendingLaporan = async (req, res) => {
         res.status(500).json({ message: "An error occurred on the server." });
     }
 };
-
-// Update status laporan (published/rejected)
 export const updateStatusLaporan = async (req, res) => {
     try {
         const { id } = req.params;
@@ -34,8 +32,6 @@ export const updateStatusLaporan = async (req, res) => {
         res.status(500).json({ message: "An error occurred on the server." });
     }
 };
-
-// Memberikan badge Trusted kepada user
 export const updateTrustedUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -52,9 +48,7 @@ export const updateTrustedUser = async (req, res) => {
 };
 
 
-// --- FUNGSI KHUSUS SUPER ADMIN ---
-
-// 1. Tampilkan semua user untuk dikelola Super Admin
+// FUNGSI SUPER ADMIN
 export const getAllUsers = async (req, res) => {
     try {
         const loggedInUserId = req.user.id_user;
@@ -74,18 +68,15 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-// 2. Ubah Role (User biasa ke Admin, atau sebaliknya)
 export const changeUserRole = async (req, res) => {
     try {
-        // Validasi tambahan: Pastikan hanya super_admin yang bisa akses (sudah dicek di routes, tapi bagus untuk double check)
         if (req.user.role !== 'super_admin') {
             return res.status(403).json({ message: "Access denied! Only Super Admin is authorized." });
         }
 
-        const { id } = req.params; // ID User yang akan diubah
-        const { role } = req.body;  // Role baru: 'admin' atau 'user'
+        const { id } = req.params;
+        const { role } = req.body;
 
-        // Validasi input role
         if (!['admin', 'user'].includes(role)) {
             return res.status(400).json({ message: "Invalid role! Use 'admin' or 'user'." });
         }

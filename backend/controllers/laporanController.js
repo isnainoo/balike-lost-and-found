@@ -177,7 +177,6 @@ export const updateLaporan = async (req, res) => {
     }
 };
 
-// TANDAI LAPORAN SELESAI
 export const markLaporanSelesai = async (req, res) => {
     try {
         const { id } = req.params;
@@ -196,7 +195,7 @@ export const markLaporanSelesai = async (req, res) => {
     }
 };
 
-// API KHUSUS ADMIN
+// API ADMIN
 export const getStatistikAdmin = async (req, res) => {
     try {
         const [data] = await db.query('SELECT tipe_laporan, status FROM LAPORAN');
@@ -207,7 +206,7 @@ export const getStatistikAdmin = async (req, res) => {
     }
 };
 
-// SMART MATCHING BANG
+// SMART MATCHING
 export const getSmartMatches = async (req, res) => {
     try {
         const id_user = req.user.id_user;
@@ -259,7 +258,7 @@ export const getSmartMatches = async (req, res) => {
             'kuning': ['yellow', 'gold']
         };
 
-        // anti
+        // anti nabrak
         const brandGroups = [
             ['iphone', 'ip', 'apple', 'macbook', 'ipad', 'ios'], 
             ['samsung', 'galaxy'], 

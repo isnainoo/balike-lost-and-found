@@ -14,8 +14,6 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
-    // --- PERBAIKAN DI SINI ---
-    // Tambahkan kondisi OR (||) untuk mengenali super_admin
     if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
         next();
     } else {

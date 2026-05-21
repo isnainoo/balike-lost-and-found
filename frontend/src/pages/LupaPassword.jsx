@@ -45,10 +45,10 @@ const LupaPassword = () => {
         passwordBaru: resetData.passwordBaru
       });
       alert(response.data.message);
-      navigate('/login'); // Lempar kembali ke halaman login
+      navigate('/login');
     } catch (error) {
       setPesan({ text: error.response?.data?.message || 'Gagal reset password', type: 'error' });
-      setStep(1); // Kembali ke langkah awal jika token kedaluwarsa
+      setStep(1);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +77,7 @@ const LupaPassword = () => {
           </div>
         )}
 
-        {/* --- LANGKAH 1: FORM VERIFIKASI --- */}
+        {/* FORM VERIFIKASI */}
         {step === 1 && (
           <form onSubmit={handleVerifikasi} className="space-y-5 relative z-10">
             <div>
@@ -108,7 +108,7 @@ const LupaPassword = () => {
           </form>
         )}
 
-        {/* --- LANGKAH 2: FORM PASSWORD BARU --- */}
+        {/* FORM PASSWORD BARU */}
         {step === 2 && (
           <form onSubmit={handleResetPassword} className="space-y-5 relative z-10 animate-in fade-in slide-in-from-right-4 duration-500">
             <div>

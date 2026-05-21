@@ -6,13 +6,11 @@ import api from '../api';
 const DashboardAdmin = () => {
   const navigate = useNavigate();
   
-  // State Data
   const [currentUser, setCurrentUser] = useState(null); 
   const [laporanPending, setLaporanPending] = useState([]);
   const [allLaporan, setAllLaporan] = useState([]); 
   const [usersList, setUsersList] = useState([]); 
   
-  // State UI & Pencarian
   const [activeTab, setActiveTab] = useState('laporan'); 
   const [isLoading, setIsLoading] = useState(true);
   const [pesan, setPesan] = useState({ text: '', type: '' });
@@ -151,7 +149,6 @@ const DashboardAdmin = () => {
   if (isLoading || !currentUser) return <div className="text-center mt-20 text-slate-500 animate-pulse font-bold">Loading admin panel...</div>;
 
   return (
-    // TRIK 1: Kunci lebar maksimal 100vw dan matikan horizontal scroll secara paksa
     <div className="py-6 md:py-10 max-w-[100vw] mx-auto px-4 md:px-8 overflow-x-hidden box-border">
       
       <div className="max-w-7xl mx-auto w-full min-w-0">
@@ -203,9 +200,7 @@ const DashboardAdmin = () => {
 
         <div className="min-h-[80vh] w-full min-w-0">
           
-          {/* ==================================================== */}
-          {/* TAB 1: VERIFIKASI LAPORAN & STATISTIK                */}
-          {/* ==================================================== */}
+          {/* VERIFIKASI LAPORAN & STATISTIK                */}
           {activeTab === 'laporan' && (
             <div className="animate-in fade-in duration-300 w-full">
               
@@ -288,7 +283,6 @@ const DashboardAdmin = () => {
                   </div>
                 </div>
 
-                {/* TRIK 2: Bungkus absolut pada Recharts agar tidak mendorong layout parent */}
                 <div className="relative w-full h-64 md:h-80 mb-6 mt-6 md:mt-8">
                   <div className="absolute inset-0">
                     <ResponsiveContainer width="100%" height="100%">
@@ -303,9 +297,7 @@ const DashboardAdmin = () => {
                   </div>
                 </div>
 
-              {/* ==================================================== */}
             {/* KOTAK TOTAL CASES COMPLETED (VERSI TEKS / CLEAN UI) */}
-            {/* ==================================================== */}
             <div className="bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 shadow-sm mt-8 md:mt-12 mb-8 w-full">
               
               {/* Header: Judul Kiri, Angka Besar Kanan */}
@@ -323,7 +315,6 @@ const DashboardAdmin = () => {
                 </div>
               </div>
 
-              {/* Rincian Angka (Tulisan Minimalis) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                 
                 {/* Kotak Detail Lost */}
@@ -360,9 +351,7 @@ const DashboardAdmin = () => {
             </div>
           )}
 
-          {/* ==================================================== */}
-          {/* TAB 2: MANAJEMEN AKSES (SUPER ADMIN ONLY)            */}
-          {/* ==================================================== */}
+          {/* MANAJEMEN AKSES (SUPER ADMIN ONLY)            */}
           {activeTab === 'manajemen' && currentUser.role === 'super_admin' && (
             <div className="animate-in fade-in duration-300 w-full min-w-0">
               
@@ -392,7 +381,6 @@ const DashboardAdmin = () => {
                 </div>
               </div>
 
-              {/* TRIK 3: max-w-full pada tabel wrapper agar tidak mendesak layar HP */}
               <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden w-full max-w-full">
                 <div className="overflow-x-auto w-full custom-scrollbar">
                   <table className="w-full min-w-[700px] text-left border-collapse">

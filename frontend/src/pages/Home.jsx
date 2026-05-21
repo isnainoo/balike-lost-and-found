@@ -33,7 +33,6 @@ const Home = () => {
     fetchData();
   }, []);
 
-  // FILTER DATA
   const filteredLaporan = laporan.filter((item) => {
     const nama = item.nama_barang ? item.nama_barang.toLowerCase() : '';
     const deskripsi = item.deskripsi ? item.deskripsi.toLowerCase() : '';
@@ -52,7 +51,6 @@ const Home = () => {
     return matchSearch && matchKategori;
   });
 
-  // PAGINATION
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 

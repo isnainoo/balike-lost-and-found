@@ -233,8 +233,6 @@ const DashboardUser = () => {
 
         {/* kolom kanan */}
         <div className="flex flex-col gap-6 h-fit">
-
-          {/* AI MATCHING */}
           {smartMatches.length > 0 && (
             <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100 shadow-sm relative overflow-hidden animate-in fade-in slide-in-from-right-4 duration-700">
               <h2 className="text-xl font-extrabold text-blue-900 mb-2 flex items-center gap-2">

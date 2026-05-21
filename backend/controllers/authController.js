@@ -64,7 +64,6 @@ export const login = async (req, res) => {
     }
 };
 
-// UPDATE PROFILE
 export const updateProfile = async (req, res) => {
     try {
         const id_user = req.user.id_user; 
@@ -78,7 +77,6 @@ export const updateProfile = async (req, res) => {
     }
 };
 
-// UPDATE PASSWORD
 export const updatePassword = async (req, res) => {
     try {
         const id_user = req.user.id_user;
@@ -119,7 +117,6 @@ export const verifikasiLupaPassword = async (req, res) => {
     }
 };
 
-// SAVE PASSWORD BARU
 export const resetPassword = async (req, res) => {
     try {
         const { resetToken, passwordBaru } = req.body;
