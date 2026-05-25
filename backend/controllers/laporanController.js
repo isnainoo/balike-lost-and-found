@@ -1,14 +1,151 @@
 import db from '../config/db.js';
+import { sendMatchEmail } from '../utils/sendEmail.js';
+
+const stopWords = [
+    'warna', 'warnanya', 'hilang', 'ditemukan', 'menemukan', 'nemu', 'jatuh', 
+    'tertinggal', 'ketinggalan', 'sekitar', 'seperti', 'dengan', 'yang', 'dan', 
+    'di', 'dari', 'ke', 'pada', 'merk', 'merek', 'unit', 'buah', 'sebuah', 
+    'saya', 'aku', 'kami', 'kita', 'dia', 'kamu', 'bagi', 'bisa', 'hubungi', 
+    'karena', 'area', 'dekat', 'didekat', 'satu', 'lagi', 'ini', 'itu', 'ada', 
+    'untuk', 'buat', 'saat', 'ketika', 'tadi', 'surakarta', 'solo', 'spbu', 
+    'mushola', 'masjid', 'kampus', 'ums', 'jalan', 'hari', 'jam'
+];
+
+const synonyms = {
+    'hp': ['handphone', 'ponsel', 'smartphone'],
+    'handphone': ['hp', 'ponsel', 'smartphone'],
+    'laptop': ['notebook', 'macbook', 'pc'],
+    'charger': ['casan', 'adaptor'],
+    'casan': ['charger', 'adaptor'],
+    'tws': ['earphone', 'headset', 'airpods', 'earbuds'],
+    'parfum': ['parfume', 'minyak', 'cologne'],
+    'dompet': ['wallet', 'pouch'],
+    'tas': ['ransel', 'backpack', 'bag'],
+    'motor': ['sepeda', 'kendaraan', 'roda'],
+    'mobil': ['kendaraan', 'roda'],
+    'ktp': ['identitas', 'kartu', 'id'],
+    'biru': ['blue', 'navy'],
+    'blue': ['biru', 'navy'],
+    'hitam': ['black', 'dark'],
+    'putih': ['white', 'clear'],
+    'merah': ['red', 'maroon'],
+    'hijau': ['green', 'ijo'],
+    'abu': ['grey', 'gray', 'silver'],
+    'kuning': ['yellow', 'gold']
+};
+
+const brandGroups = [
+    ['iphone', 'ip', 'apple', 'macbook', 'ipad', 'ios'], 
+    ['samsung', 'galaxy'], 
+    ['xiaomi', 'redmi', 'poco', 'mi'], 
+    ['oppo'], 
+    ['vivo'],
+    ['infinix'], 
+    ['asus', 'rog'], 
+    ['acer', 'predator'],
+    ['lenovo', 'thinkpad', 'ideapad'], 
+    ['honda', 'vario', 'beat', 'scoopy', 'pcx', 'supra'], 
+    ['yamaha', 'nmax', 'aerox', 'mio', 'jupiter', 'r15'], 
+    ['vespa'],
+    ['dior', 'sauvage', 'chanel', 'bvlgari'] 
+];
+
+const getWords = (text) => {
+    if (!text) return [];
+    return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1 && !stopWords.includes(w));
+};
+
+const hasBrandClash = (wordsA, wordsB) => {
+    let groupIndexA = new Set();
+    let groupIndexB = new Set();
+
+    wordsA.forEach(wA => { brandGroups.forEach((group, index) => { if (group.includes(wA)) groupIndexA.add(index); }); });
+    wordsB.forEach(wB => { brandGroups.forEach((group, index) => { if (group.includes(wB)) groupIndexB.add(index); }); });
+
+    if (groupIndexA.size > 0 && groupIndexB.size > 0) {
+        let intersection = [...groupIndexA].filter(x => groupIndexB.has(x));
+        if (intersection.length === 0) return true; 
+    }
+    return false; 
+};
+
+const checkMatch = (wordsA, wordsB) => {
+    let matched = [];
+    for (let wA of wordsA) {
+        for (let wB of wordsB) {
+            if (wA === wB) matched.push(wA);
+            else if (wA.length >= 4 && wB.length >= 4 && (wA.includes(wB) || wB.includes(wA))) matched.push(wA);
+            else if (synonyms[wA] && synonyms[wA].includes(wB)) matched.push(wA);
+        }
+    }
+    return matched;
+};
+
+export const runAutoSmartMatch = async (newReportId) => {
+    try {
+        const [newRepData] = await db.query(`
+            SELECT l.*, u.email, u.nama_lengkap 
+            FROM LAPORAN l JOIN USER u ON l.id_user = u.id_user 
+            WHERE l.id_laporan = ?
+        `, [newReportId]);
+        
+        if (newRepData.length === 0) return;
+        const newRep = newRepData[0];
+
+        const [otherReports] = await db.query(`
+            SELECT l.*, u.email, u.nama_lengkap 
+            FROM LAPORAN l JOIN USER u ON l.id_user = u.id_user 
+            WHERE l.tipe_laporan != ? AND l.id_kategori = ? AND l.status = 'published' AND l.id_user != ?
+        `, [newRep.tipe_laporan, newRep.id_kategori, newRep.id_user]);
+
+        const myNameWords = getWords(newRep.nama_barang);
+        const myDescWords = getWords(newRep.deskripsi);
+
+        for (let otherRep of otherReports) {
+            const otherNameWords = getWords(otherRep.nama_barang);
+            const otherDescWords = getWords(otherRep.deskripsi);
+
+            const isClashing = hasBrandClash(
+                [...myNameWords, ...myDescWords], 
+                [...otherNameWords, ...otherDescWords]
+            );
+
+            if (isClashing) continue;
+
+            const titleMatches = checkMatch(myNameWords, otherNameWords);
+
+            if (titleMatches.length > 0) {
+                const descMatches = checkMatch(myDescWords, otherDescWords);
+                
+                let score = (titleMatches.length * 40) + (descMatches.length * 10);
+                if (score > 99) score = 99;
+
+                if (score >= 75) {
+                    console.log(`🔥 Smart Match Terdeteksi! Skor: ${score}% - Mengirim email & notif...`);
+                    
+                    const pesanLama = `Barang temuan yang mirip dengan ${otherRep.nama_barang} telah dilaporkan! (Kecocokan: ${score}%)`;
+                    
+                    await sendMatchEmail(otherRep.email, otherRep.nama_barang, score, newRep.id_laporan);
+                    await db.query(`INSERT INTO NOTIFIKASI (id_user, id_laporan_terkait, pesan) VALUES (?, ?, ?)`, [otherRep.id_user, newRep.id_laporan, pesanLama]);
+                    
+                    const pesanBaru = `Laporan Anda cocok dengan barang ${newRep.nama_barang} yang sudah ada di sistem! (Kecocokan: ${score}%)`;
+        
+                    await sendMatchEmail(newRep.email, newRep.nama_barang, score, otherRep.id_laporan);
+                    await db.query(`INSERT INTO NOTIFIKASI (id_user, id_laporan_terkait, pesan) VALUES (?, ?, ?)`, [newRep.id_user, otherRep.id_laporan, pesanBaru]);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error pada runAutoSmartMatch:", error);
+    }
+};
 
 export const createLaporan = async (req, res) => {
     try {
         const { id_kategori, tipe_laporan, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian } = req.body;
-        
         const id_user = req.user.id_user; 
         const is_trusted = req.user.is_trusted; 
-
         const url_foto = req.file ? `/uploads/${req.file.filename}` : null;
-
         const status = is_trusted ? 'published' : 'pending';
 
         const query = `
@@ -17,10 +154,14 @@ export const createLaporan = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        await db.query(query, [
+        const [result] = await db.query(query, [
             id_user, id_kategori || null, tipe_laporan, nama_barang, deskripsi, 
             lokasi_kejadian, tanggal_kejadian, url_foto, status
         ]);
+
+        if (status === 'published') {
+            runAutoSmartMatch(result.insertId);
+        }
 
         res.status(201).json({ 
             message: "Report sent successfully!", 
@@ -195,7 +336,6 @@ export const markLaporanSelesai = async (req, res) => {
     }
 };
 
-// API ADMIN
 export const getStatistikAdmin = async (req, res) => {
     try {
         const [data] = await db.query('SELECT tipe_laporan, status FROM LAPORAN');
@@ -206,7 +346,6 @@ export const getStatistikAdmin = async (req, res) => {
     }
 };
 
-// SMART MATCHING
 export const getSmartMatches = async (req, res) => {
     try {
         const id_user = req.user.id_user;
@@ -222,94 +361,6 @@ export const getSmartMatches = async (req, res) => {
         `, [id_user]);
 
         let matchedResults = [];
-
-        // stopword
-        const stopWords = [
-            'warna', 'warnanya', 'hilang', 'ditemukan', 'menemukan', 'nemu', 'jatuh', 
-            'tertinggal', 'ketinggalan', 'sekitar', 'seperti', 'dengan', 'yang', 'dan', 
-            'di', 'dari', 'ke', 'pada', 'merk', 'merek', 'unit', 'buah', 'sebuah', 
-            'saya', 'aku', 'kami', 'kita', 'dia', 'kamu', 'bagi', 'bisa', 'hubungi', 
-            'karena', 'area', 'dekat', 'didekat', 'satu', 'lagi', 'ini', 'itu', 'ada', 
-            'untuk', 'buat', 'saat', 'ketika', 'tadi', 'surakarta', 'solo', 'spbu', 
-            'mushola', 'masjid', 'kampus', 'ums', 'jalan', 'hari', 'jam'
-        ];
-
-        // sinonim
-        const synonyms = {
-            'hp': ['handphone', 'ponsel', 'smartphone'],
-            'handphone': ['hp', 'ponsel', 'smartphone'],
-            'laptop': ['notebook', 'macbook', 'pc'],
-            'charger': ['casan', 'adaptor'],
-            'casan': ['charger', 'adaptor'],
-            'tws': ['earphone', 'headset', 'airpods', 'earbuds'],
-            'parfum': ['parfume', 'minyak', 'cologne'],
-            'dompet': ['wallet', 'pouch'],
-            'tas': ['ransel', 'backpack', 'bag'],
-            'motor': ['sepeda', 'kendaraan', 'roda'],
-            'mobil': ['kendaraan', 'roda'],
-            'ktp': ['identitas', 'kartu', 'id'],
-            'biru': ['blue', 'navy'],
-            'blue': ['biru', 'navy'],
-            'hitam': ['black', 'dark'],
-            'putih': ['white', 'clear'],
-            'merah': ['red', 'maroon'],
-            'hijau': ['green', 'ijo'],
-            'abu': ['grey', 'gray', 'silver'],
-            'kuning': ['yellow', 'gold']
-        };
-
-        // anti nabrak
-        const brandGroups = [
-            ['iphone', 'ip', 'apple', 'macbook', 'ipad', 'ios'], 
-            ['samsung', 'galaxy'], 
-            ['xiaomi', 'redmi', 'poco', 'mi'], 
-            ['oppo'], 
-            ['vivo'],
-            ['infinix'], 
-            ['asus', 'rog'], 
-            ['acer', 'predator'],
-            ['lenovo', 'thinkpad', 'ideapad'], 
-            ['honda', 'vario', 'beat', 'scoopy', 'pcx', 'supra'], 
-            ['yamaha', 'nmax', 'aerox', 'mio', 'jupiter', 'r15'], 
-            ['vespa'],
-            ['dior', 'sauvage', 'chanel', 'bvlgari'] 
-        ];
-
-        const getWords = (text) => {
-            if (!text) return [];
-            return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1 && !stopWords.includes(w));
-        };
-
-        const hasBrandClash = (wordsA, wordsB) => {
-            let groupIndexA = new Set();
-            let groupIndexB = new Set();
-
-            wordsA.forEach(wA => {
-                brandGroups.forEach((group, index) => { if (group.includes(wA)) groupIndexA.add(index); });
-            });
-
-            wordsB.forEach(wB => {
-                brandGroups.forEach((group, index) => { if (group.includes(wB)) groupIndexB.add(index); });
-            });
-
-            if (groupIndexA.size > 0 && groupIndexB.size > 0) {
-                let intersection = [...groupIndexA].filter(x => groupIndexB.has(x));
-                if (intersection.length === 0) return true; 
-            }
-            return false; 
-        };
-
-        const checkMatch = (wordsA, wordsB) => {
-            let matched = [];
-            for (let wA of wordsA) {
-                for (let wB of wordsB) {
-                    if (wA === wB) matched.push(wA);
-                    else if (wA.length >= 4 && wB.length >= 4 && (wA.includes(wB) || wB.includes(wA))) matched.push(wA);
-                    else if (synonyms[wA] && synonyms[wA].includes(wB)) matched.push(wA);
-                }
-            }
-            return matched;
-        };
 
         myReports.forEach(myRep => {
             otherReports.forEach(otherRep => {
@@ -354,5 +405,25 @@ export const getSmartMatches = async (req, res) => {
     } catch (error) {
         console.error("Error Smart Match:", error);
         res.status(500).json({ message: "A server error occurred" });
+    }
+};
+
+export const getNotifikasiKu = async (req, res) => {
+    try {
+        const id_user = req.user.id_user;
+        const [notif] = await db.query('SELECT * FROM NOTIFIKASI WHERE id_user = ? ORDER BY waktu_dibuat DESC', [id_user]);
+        res.status(200).json(notif);
+    } catch (error) {
+        res.status(500).json({ message: "Gagal mengambil notifikasi" });
+    }
+};
+
+export const tandaiNotifDibaca = async (req, res) => {
+    try {
+        const id_user = req.user.id_user;
+        await db.query('UPDATE NOTIFIKASI SET is_read = TRUE WHERE id_user = ?', [id_user]);
+        res.status(200).json({ message: "Notifikasi telah dibaca" });
+    } catch (error) {
+        res.status(500).json({ message: "Gagal update notifikasi" });
     }
 };
