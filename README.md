@@ -40,3 +40,10 @@
 - JSON Web Token (Autentikasi API)
 
 ---
+
+TIM Project
+
+- Isna Choiron Nasikhin (L200230037),
+- Afkar Fakhru Ryanto (l200230045),
+- Rauf Zaidan Fajari (l200230021),
+- Mahendra Dhanar Putranto (l200230029)
