@@ -16,6 +16,7 @@ const EditLaporan = () => {
         deskripsi: '',
         lokasi_kejadian: '',
         tanggal_kejadian: '',
+        imbalan: '',
         foto: null 
     });
 
@@ -37,6 +38,7 @@ const EditLaporan = () => {
                     deskripsi: data.deskripsi,
                     lokasi_kejadian: data.lokasi_kejadian,
                     tanggal_kejadian: formattedDate,
+                    imbalan: data.imbalan || '',
                     foto: null 
                 });
             } catch (error) {
@@ -69,6 +71,7 @@ const EditLaporan = () => {
         submitData.append('deskripsi', formData.deskripsi);
         submitData.append('lokasi_kejadian', formData.lokasi_kejadian);
         submitData.append('tanggal_kejadian', formData.tanggal_kejadian);
+        submitData.append('imbalan', formData.imbalan);
 
         if (formData.foto) {
             submitData.append('foto', formData.foto);
@@ -114,14 +117,34 @@ const EditLaporan = () => {
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Item Category</label>
-                        <select name="id_kategori" value={formData.id_kategori} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 bg-white">
-                            <option value="">Select Category...</option>
-                            {kategoriList.map(kat => (
-                                <option key={kat.id_kategori} value={kat.id_kategori}>{kat.nama_kategori}</option>
-                            ))}
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Item Category</label>
+                            <select name="id_kategori" value={formData.id_kategori} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 bg-white">
+                                <option value="">Select Category...</option>
+                                {kategoriList.map(kat => (
+                                    <option key={kat.id_kategori} value={kat.id_kategori}>{kat.nama_kategori}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* INPUT IMBALAN */}
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Reward / Imbalan (Opsional)</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">Rp</span>
+                                <input 
+                                    type="number" 
+                                    name="imbalan" 
+                                    value={formData.imbalan} 
+                                    onChange={handleInputChange} 
+                                    onWheel={(e) => e.target.blur()} 
+                                    onKeyDown={(e) => ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()}
+                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white" 
+                                    placeholder="Contoh: 50000" 
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div>

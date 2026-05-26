@@ -2,6 +2,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 
+const formatRupiah = (angka) => {
+    return new Intl.NumberFormat('id-ID', { 
+        style: 'currency', 
+        currency: 'IDR',
+        minimumFractionDigits: 0
+    }).format(angka);
+};
+
 const DetailLaporan = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -78,16 +86,9 @@ const DetailLaporan = () => {
                 isLost
                     ? 'INFO BARANG HILANG'
                     : 'INFO BARANG TEMUAN'
-            }
-
-${actionText}: *${item.nama_barang}*.
-
-📍 Lokasi: ${item.lokasi_kejadian}
-📅 Tanggal: ${new Date(
+            }\n\n${actionText}: *${item.nama_barang}*.\n\n📍 Lokasi: ${item.lokasi_kejadian}\n📅 Tanggal: ${new Date(
                 item.tanggal_kejadian
-            ).toLocaleDateString('id-ID')}
-
-Lihat detail lengkapnya di sini, terimakasih:`,
+            ).toLocaleDateString('id-ID')}\n\nLihat detail lengkapnya di sini, terimakasih:`,
 
             url: window.location.href,
         };
@@ -206,7 +207,7 @@ Lihat detail lengkapnya di sini, terimakasih:`,
                 <div className="md:w-1/2 p-8 md:p-12">
                     {/* TYPE */}
                     <span
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm ${
+                        className={`inline-block mb-4 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter shadow-sm ${
                             item.tipe_laporan === 'kehilangan'
                                 ? 'bg-red-500 text-white'
                                 : 'bg-emerald-500 text-white'
@@ -217,10 +218,21 @@ Lihat detail lengkapnya di sini, terimakasih:`,
                             : 'FOUND'}
                     </span>
 
-                    {/* TITLE */}
-                    <h1 className="text-4xl font-extrabold text-slate-800 mb-6">
-                        {item.nama_barang}
-                    </h1>
+                    {/* IMBALAN WRAPPER */}
+                    <div className="mb-6">
+                        <h1 className="text-4xl font-extrabold text-slate-800 mb-3">
+                            {item.nama_barang}
+                        </h1>
+
+                        {item.imbalan > 0 && (
+                            <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 font-extrabold text-xs px-3 py-1.5 rounded-full shadow-sm">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                </svg>
+                                IMBALAN: {formatRupiah(item.imbalan)}
+                            </div>
+                        )}
+                    </div>
 
                     <div className="space-y-8">
                         {/* DESCRIPTION */}
@@ -288,7 +300,6 @@ Lihat detail lengkapnya di sini, terimakasih:`,
                             </div>
                         ) : (
                             <div className="flex gap-3 mt-6">
-                                {/* WHATSAPP */}
                                 <a
                                     href={`https://wa.me/${
                                         item.nomor_telepon.startsWith('0')

@@ -142,7 +142,8 @@ export const runAutoSmartMatch = async (newReportId) => {
 
 export const createLaporan = async (req, res) => {
     try {
-        const { id_kategori, tipe_laporan, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian } = req.body;
+        const { id_kategori, tipe_laporan, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian, imbalan } = req.body;
+        const nominalImbalan = imbalan ? Math.round(Number(imbalan)) : null;
         const id_user = req.user.id_user; 
         const is_trusted = req.user.is_trusted; 
         const url_foto = req.file ? `/uploads/${req.file.filename}` : null;
@@ -150,13 +151,13 @@ export const createLaporan = async (req, res) => {
 
         const query = `
             INSERT INTO LAPORAN 
-            (id_user, id_kategori, tipe_laporan, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian, url_foto, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (id_user, id_kategori, tipe_laporan, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian, url_foto, status, imbalan) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [result] = await db.query(query, [
             id_user, id_kategori || null, tipe_laporan, nama_barang, deskripsi, 
-            lokasi_kejadian, tanggal_kejadian, url_foto, status
+            lokasi_kejadian, tanggal_kejadian, url_foto, status, nominalImbalan
         ]);
 
         if (status === 'published') {
@@ -286,16 +287,18 @@ export const updateLaporan = async (req, res) => {
             return res.status(403).json({ message: "You are not authorized to edit this report." });
         }
 
-        const { tipe_laporan, id_kategori, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian } = req.body;
+        const { tipe_laporan, id_kategori, nama_barang, deskripsi, lokasi_kejadian, tanggal_kejadian, imbalan } = req.body;
         
         let url_foto = laporanLama[0].url_foto; 
         if (req.file) {
             url_foto = `/uploads/${req.file.filename}`; 
         }
 
+        const nominalImbalan = imbalan ? parseInt(imbalan) : null;
+
         const query = `
             UPDATE LAPORAN 
-            SET tipe_laporan = ?, id_kategori = ?, nama_barang = ?, deskripsi = ?, lokasi_kejadian = ?, tanggal_kejadian = ?, url_foto = ?
+            SET tipe_laporan = ?, id_kategori = ?, nama_barang = ?, deskripsi = ?, lokasi_kejadian = ?, tanggal_kejadian = ?, url_foto = ?, imbalan = ?
             WHERE id_laporan = ?
         `;
         const values = [
@@ -306,6 +309,7 @@ export const updateLaporan = async (req, res) => {
             lokasi_kejadian, 
             tanggal_kejadian, 
             url_foto, 
+            nominalImbalan,
             id
         ];
 

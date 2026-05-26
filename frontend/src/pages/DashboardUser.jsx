@@ -19,6 +19,7 @@ const DashboardUser = () => {
     deskripsi: '',
     lokasi_kejadian: '',
     tanggal_kejadian: '',
+    imbalan: '',
     foto: null
   });
 
@@ -28,13 +29,6 @@ const DashboardUser = () => {
       navigate('/login');
     } else {
       const parsedUser = JSON.parse(dataUser);
-      
-      // admin atau super_admin, lempar kembali ke panel admin
-      // if (parsedUser.role === 'admin' || parsedUser.role === 'super_admin') {
-      //   navigate('/admin');
-      //   return;
-      // }
-      
       setUser(parsedUser);
       fetchRiwayatLaporan();
       fetchKategori();
@@ -110,6 +104,10 @@ const DashboardUser = () => {
     submitData.append('lokasi_kejadian', formData.lokasi_kejadian);
     submitData.append('tanggal_kejadian', formData.tanggal_kejadian);
     submitData.append('id_kategori', formData.id_kategori); 
+    
+    if (formData.imbalan) {
+        submitData.append('imbalan', formData.imbalan);
+    }
 
     if (formData.foto) {
       submitData.append('foto', formData.foto);
@@ -129,6 +127,7 @@ const DashboardUser = () => {
         deskripsi: '',
         lokasi_kejadian: '', 
         tanggal_kejadian: '', 
+        imbalan: '',
         foto: null
       });
       document.getElementById('foto').value = '';
@@ -188,20 +187,40 @@ const DashboardUser = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Item Category</label>
-              <select 
-                name="id_kategori" 
-                value={formData.id_kategori} 
-                onChange={handleInputChange} 
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white transition-all"
-              >
-                {kategoriList.map(kat => (
-                  <option key={kat.id_kategori} value={kat.id_kategori}>
-                    {kat.nama_kategori}
-                  </option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Item Category</label>
+                <select 
+                  name="id_kategori" 
+                  value={formData.id_kategori} 
+                  onChange={handleInputChange} 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white transition-all"
+                >
+                  {kategoriList.map(kat => (
+                    <option key={kat.id_kategori} value={kat.id_kategori}>
+                      {kat.nama_kategori}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* INPUT IMBALAN */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Reward / Imbalan (Opsional)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">Rp</span>
+                  <input 
+                    type="number" 
+                    name="imbalan" 
+                    value={formData.imbalan} 
+                    onChange={handleInputChange} 
+                    onWheel={(e) => e.target.blur()} 
+                    onKeyDown={(e) => ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()}
+                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white" 
+                    placeholder="Contoh: 50000" 
+                  />
+                </div>
+              </div>
             </div>
           
             <div>
@@ -231,7 +250,6 @@ const DashboardUser = () => {
           </form>
         </div>
 
-        {/* kolom kanan */}
         <div className="flex flex-col gap-6 h-fit">
           {smartMatches.length > 0 && (
             <div className="bg-blue-50 p-6 rounded-[2rem] border border-blue-100 shadow-sm relative overflow-hidden animate-in fade-in slide-in-from-right-4 duration-700">
@@ -307,7 +325,6 @@ const DashboardUser = () => {
                       </div>
                     </Link>
 
-                    {/* Tombol Kelola Cepat */}
                     <div className="flex items-center gap-2 pt-3 border-t border-slate-200 mt-2">
                       <Link 
                         to={`/laporan/${item.id_laporan}/edit`}
