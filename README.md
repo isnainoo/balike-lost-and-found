@@ -16,12 +16,12 @@
 
 ## ✨ Fitur Utama
 
-- **🛡️ Multi-Tier Access:** Sistem *role-based* (Super Admin, Admin, dan Standard User) dengan panel *dashboard* terpisah yang premium.
-- **🤖 Smart Match:** Fitur pencocokan cerdas yang otomatis mendeteksi kemiripan antara barang yang dilaporkan hilang dengan barang yang ditemukan.
+- **🛡️ Multi-Tier Access:** Sistem *role-based* (Super Admin, Admin, dan Standard User) dengan panel *dashboard* terpisah yang premium
+- **🤖 Smart Match:** Fitur pencocokan cerdas yang otomatis mendeteksi kemiripan antara barang yang dilaporkan hilang dengan barang yang ditemukan
 - **📊 Real-time Dashboard:** Visualisasi data statistik kasus menggunakan *Pie* dan *Radial Bar Chart* yang interaktif.
-- **📸 Image Upload:** Dukungan unggah foto barang bukti yang aman menggunakan arsitektur Multer.
-- **🔐 Secure Authentication:** Keamanan data pengguna menggunakan *JSON Web Tokens* (JWT) dan enkripsi *password*.
-- **📱 Responsive UI:** Desain antarmuka yang 100% responsif dan elegan untuk perangkat *desktop* maupun *mobile* menggunakan Tailwind CSS.
+- **📸 Image Upload:** Dukungan unggah foto barang bukti yang aman menggunakan arsitektur Multer
+- **🔐 Secure Authentication:** Keamanan data pengguna menggunakan *JSON Web Tokens* (JWT) dan enkripsi *password*
+- **📱 Responsive UI:** Desain antarmuka yang 100% responsif dan elegan untuk perangkat *desktop* maupun *mobile* menggunakan Tailwind CSS
 
 ---
 
