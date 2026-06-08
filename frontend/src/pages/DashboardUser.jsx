@@ -106,7 +106,7 @@ const DashboardUser = () => {
     submitData.append('id_kategori', formData.id_kategori); 
     
     if (formData.imbalan) {
-        submitData.append('imbalan', formData.imbalan);
+        submitData.append('REWARD', formData.imbalan);
     }
 
     if (formData.foto) {
@@ -183,7 +183,7 @@ const DashboardUser = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Name of goods</label>
-                <input type="text" name="nama_barang" required value={formData.nama_barang} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Example: Dompet Hitam" />
+                <input type="text" name="nama_barang" required value={formData.nama_barang} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Example: Iphone 13 blue with case" />
               </div>
             </div>
 
@@ -206,12 +206,12 @@ const DashboardUser = () => {
               
               {/* INPUT IMBALAN */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Reward / Imbalan (Opsional)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Reward (Optional)</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">Rp</span>
                   <input 
                     type="number" 
-                    name="imbalan" 
+                    name="Reward" 
                     value={formData.imbalan} 
                     onChange={handleInputChange} 
                     onWheel={(e) => e.target.blur()} 
@@ -225,13 +225,13 @@ const DashboardUser = () => {
           
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-              <textarea name="deskripsi" required rows="3" value={formData.deskripsi} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="State the detailed characteristics of the item..."></textarea>
+              <textarea name="deskripsi" required rows="3" value={formData.deskripsi} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="State the incident and detailed characteristics of the item..."></textarea>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Location of the Incident</label>
-                <input type="text" name="lokasi_kejadian" required value={formData.lokasi_kejadian} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Example: Parkiran FK UMS" />
+                <input type="text" name="lokasi_kejadian" required value={formData.lokasi_kejadian} onChange={handleInputChange} className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Example: surakarta" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>

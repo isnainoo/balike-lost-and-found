@@ -71,7 +71,7 @@ const EditLaporan = () => {
         submitData.append('deskripsi', formData.deskripsi);
         submitData.append('lokasi_kejadian', formData.lokasi_kejadian);
         submitData.append('tanggal_kejadian', formData.tanggal_kejadian);
-        submitData.append('imbalan', formData.imbalan);
+        submitData.append('reward', formData.imbalan);
 
         if (formData.foto) {
             submitData.append('foto', formData.foto);
@@ -135,7 +135,7 @@ const EditLaporan = () => {
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">Rp</span>
                                 <input 
                                     type="number" 
-                                    name="imbalan" 
+                                    name="reward" 
                                     value={formData.imbalan} 
                                     onChange={handleInputChange} 
                                     onWheel={(e) => e.target.blur()} 

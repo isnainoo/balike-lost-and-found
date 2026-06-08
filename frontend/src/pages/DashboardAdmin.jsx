@@ -132,8 +132,8 @@ const DashboardAdmin = () => {
 
   const lostCount = allLaporan.filter(item => item.tipe_laporan === 'kehilangan').length;
   const foundCount = allLaporan.filter(item => item.tipe_laporan === 'penemuan').length;
-  const selesaiLostCount = allLaporan.filter(item => (item.status === 'selesai' || item.status === 'archived') && item.tipe_laporan === 'kehilangan').length;
-  const selesaiFoundCount = allLaporan.filter(item => (item.status === 'selesai' || item.status === 'archived') && item.tipe_laporan === 'penemuan').length;
+  const selesaiLostCount = allLaporan.filter(item => item.status === 'selesai' && item.tipe_laporan === 'kehilangan').length;
+  const selesaiFoundCount = allLaporan.filter(item => item.status === 'selesai' && item.tipe_laporan === 'penemuan').length;
   const publishedCount = allLaporan.filter(item => item.status === 'published').length;
 
   const chartData = [

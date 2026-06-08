@@ -244,19 +244,19 @@ const Home = () => {
                         <div className="mt-12 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
 
                             <div className="text-slate-500 text-sm font-medium">
-                                Menampilkan{' '}
+                                Showing{' '}
                                 <span className="font-bold text-slate-800">
                                     {indexOfFirstItem + 1}
                                 </span>{' '}
-                                sampai{' '}
+                                until{' '}
                                 <span className="font-bold text-slate-800">
                                     {Math.min(indexOfLastItem, filteredLaporan.length)}
                                 </span>{' '}
-                                dari{' '}
+                                from{' '}
                                 <span className="font-bold text-slate-800">
                                     {filteredLaporan.length}
                                 </span>{' '}
-                                dokumen
+                                document
                             </div>
 
                             <div className="flex rounded-xl overflow-hidden shadow-sm border border-slate-300">

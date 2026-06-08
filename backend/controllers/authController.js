@@ -99,7 +99,6 @@ export const updatePassword = async (req, res) => {
     }
 };
 
-// LUPA PASSWORD
 export const verifikasiLupaPassword = async (req, res) => {
     try {
         const { email, nomor_telepon } = req.body;

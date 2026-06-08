@@ -2,53 +2,139 @@ import db from '../config/db.js';
 import { sendMatchEmail } from '../utils/sendEmail.js';
 
 const stopWords = [
-    'warna', 'warnanya', 'hilang', 'ditemukan', 'menemukan', 'nemu', 'jatuh', 
-    'tertinggal', 'ketinggalan', 'sekitar', 'seperti', 'dengan', 'yang', 'dan', 
-    'di', 'dari', 'ke', 'pada', 'merk', 'merek', 'unit', 'buah', 'sebuah', 
-    'saya', 'aku', 'kami', 'kita', 'dia', 'kamu', 'bagi', 'bisa', 'hubungi', 
-    'karena', 'area', 'dekat', 'didekat', 'satu', 'lagi', 'ini', 'itu', 'ada', 
-    'untuk', 'buat', 'saat', 'ketika', 'tadi', 'surakarta', 'solo', 'spbu', 
-    'mushola', 'masjid', 'kampus', 'ums', 'jalan', 'hari', 'jam'
+    'hilang', 'kehilangan', 'ditemukan', 'menemukan', 'nemu', 'jatuh', 'terjatuh', 
+    'tertinggal', 'ketinggalan', 'nyelip', 'terselip', 'dicari', 'mencari', 'ketemu',
+    'saya', 'aku', 'kami', 'kita', 'dia', 'kamu', 'beliau', 'mereka', 'ybs', 'min', 'admin',
+    'sekitar', 'seperti', 'dengan', 'yang', 'dan', 'di', 'dari', 'ke', 'pada', 'dalam', 
+    'untuk', 'buat', 'bagi', 'karena', 'sebab', 'atau', 'tetapi', 'namun', 'jika', 'bila',
+    'ini', 'itu', 'sana', 'sini', 'situ', 'ada', 'lagi', 'satu', 'sebuah', 'unit', 'buah', 
+    'helai', 'lembar', 'pasang', 'banyak', 'beberapa',
+    'warna', 'warnanya', 'berwarna', 'merk', 'merek', 'brand', 'tipe', 'type', 'seri',
+    'saat', 'ketika', 'tadi', 'kemarin', 'besok', 'pagi', 'siang', 'sore', 'malam', 'hari', 
+    'jam', 'pukul', 'area', 'dekat', 'didekat', 'depan', 'belakang', 'samping', 'luar',
+    'tolong', 'bantu', 'hubungi', 'bisa', 'mohon', 'infonya', 'info', 'share', 'bagikan',
+    'barangkali', 'siapa', 'tau', 'tahu', 'dong', 'sih', 'nih', 'tuh', 'ya', 'kan', 'kok',
+    'lur', 'sedulur', 'minca', 'neng', 'nang', 'ndek', 'ning', 'iki', 'kuwi', 
+    'iku', 'mau', 'pas', 'wis', 'wes', 'durung', 'udah', 'belum', 'ilang', 'ketlisut', 
+    'ceblok', 'tibho', 'tibo', 'golek', 'pados', 'nuwun', 'monggo', 'punten',
+    'yaallah', 'bismillah', 'alhamdulillah', 'astagfirullah', 'guys', 'gaes', 'rek', 
+    'temen-temen', 'teman-teman', 'plis', 'please', 'help', 'urgent'
 ];
 
 const synonyms = {
-    'hp': ['handphone', 'ponsel', 'smartphone'],
-    'handphone': ['hp', 'ponsel', 'smartphone'],
-    'laptop': ['notebook', 'macbook', 'pc'],
-    'charger': ['casan', 'adaptor'],
-    'casan': ['charger', 'adaptor'],
-    'tws': ['earphone', 'headset', 'airpods', 'earbuds'],
-    'parfum': ['parfume', 'minyak', 'cologne'],
-    'dompet': ['wallet', 'pouch'],
-    'tas': ['ransel', 'backpack', 'bag'],
-    'motor': ['sepeda', 'kendaraan', 'roda'],
-    'mobil': ['kendaraan', 'roda'],
-    'ktp': ['identitas', 'kartu', 'id'],
-    'biru': ['blue', 'navy'],
+    'hp': ['handphone', 'ponsel', 'smartphone', 'hape'],
+    'handphone': ['hp', 'ponsel', 'smartphone', 'hape'],
+    'laptop': ['notebook', 'macbook', 'pc', 'komputer'],
+    'charger': ['casan', 'adaptor', 'kabel', 'charging'],
+    'casan': ['charger', 'adaptor', 'kabel'],
+    'tws': ['earphone', 'headset', 'airpods', 'earbuds', 'headphone'],
+    'flashdisk': ['fd', 'usb', 'pendrive', 'flashdrive', 'otg'],
+    'powerbank': ['pb', 'baterai'],
+    'smartwatch': ['jam pintar', 'iwatch', 'galaxy watch', 'band'],
+    'kacamata': ['glasses', 'sunglasses', 'kacamata minus', 'softlens', 'kacamata hitam'],
+    'jam tangan': ['arloji', 'watch', 'jam'],
+    'powerbank': ['pb', 'baterai', 'power'],
+    'tas': ['ransel', 'backpack', 'bag', 'totebag', 'selempang'],
+    'dompet': ['wallet', 'pouch', 'cardholder'],
+    'sepatu': ['shoes', 'sneakers', 'kets'],
+    'sandal': ['sendal', 'slipper', 'swallow', 'slop'],
+    'jaket': ['hoodie', 'sweater', 'coat', 'cardigan', 'vest'],
+    'topi': ['hat', 'cap', 'kupluk'],
+    'helm': ['helmet', 'helem', 'cargloss', 'bogo', 'fullface', 'halfface'],
+    'parfum': ['parfume', 'minyak wangi', 'cologne', 'bodymist'],
+    'ktp': ['identitas', 'kartu', 'e-ktp', 'id', 'kartu tanda penduduk', 'id card'],
+    'ktm': ['kartu mahasiswa', 'krs', 'identitas kampus', 'kartu tanda mahasiswa', 'kartu perpus'],
+    'sim': ['surat izin mengemudi', 'sim a', 'sim c', 'sim b'],
+    'stnk': ['surat motor', 'surat kendaraan', 'kertas pajak', 'pajak motor', 'kertas stnk'],
+    'bpkb': ['buku motor', 'surat kendaraan'],
+    'atm': ['kartu debit', 'kredit', 'cc', 'kartu bank'],
+    'kunci': ['key', 'remot', 'keyless', 'smartkey', 'kontak'],
+    'kunci kos': ['kunci kamar', 'kunci kost', 'kunci gembok'],
+    'kunci motor': ['kunci kontak', 'remot motor', 'keyless'],
+    'kunci mobil': ['remot mobil', 'kunci kontak mobil'],
+    'motor': ['sepeda motor', 'kendaraan', 'roda dua', 'kereta'],
+    'mobil': ['kendaraan', 'roda empat', 'car'],
+    'botol': ['tumbler', 'botol minum', 'tempat minum', 'termos'],
+    'kalkulator': ['calculator', 'alat hitung'],
+    'alat tulis': ['tempat pensil', 'tepak', 'kotak pensil', 'pulpen', 'pensil'],
+    'buku': ['binder', 'catatan', 'jurnal', 'diktat', 'modul'],
+    'payung': ['umbrella', 'payung lipat'],
+    'jas hujan': ['mantol', 'mantal', 'raincoat'],
+    'biru': ['blue', 'navy', 'cyan'],
     'blue': ['biru', 'navy'],
-    'hitam': ['black', 'dark'],
-    'putih': ['white', 'clear'],
-    'merah': ['red', 'maroon'],
-    'hijau': ['green', 'ijo'],
-    'abu': ['grey', 'gray', 'silver'],
-    'kuning': ['yellow', 'gold']
+    'hitam': ['black', 'dark', 'gelap'],
+    'putih': ['white', 'clear', 'bening'],
+    'merah': ['red', 'maroon', 'marun', 'pink', 'merah muda'],
+    'hijau': ['green', 'ijo', 'tosca'],
+    'abu': ['grey', 'gray', 'silver', 'abu-abu'],
+    'kuning': ['yellow', 'gold', 'emas'],
+    'coklat': ['brown', 'cokelat', 'cream', 'krem'],
+    'biru dongker': ['navy', 'biru gelap', 'dark blue'],
+    'merah marun': ['maroon', 'merah tua', 'dark red'],
+    'hijau botol': ['hijau tua', 'dark green'],
+    'putih tulang': ['broken white', 'krem', 'cream']
 };
 
 const brandGroups = [
-    ['iphone', 'ip', 'apple', 'macbook', 'ipad', 'ios'], 
-    ['samsung', 'galaxy'], 
-    ['xiaomi', 'redmi', 'poco', 'mi'], 
-    ['oppo'], 
-    ['vivo'],
-    ['infinix'], 
-    ['asus', 'rog'], 
-    ['acer', 'predator'],
-    ['lenovo', 'thinkpad', 'ideapad'], 
-    ['honda', 'vario', 'beat', 'scoopy', 'pcx', 'supra'], 
-    ['yamaha', 'nmax', 'aerox', 'mio', 'jupiter', 'r15'], 
-    ['vespa'],
-    ['dior', 'sauvage', 'chanel', 'bvlgari'] 
+    ['apple', 'iphone', 'ip', 'macbook', 'ipad', 'ios', 'airpods', 'iwatch'], 
+    ['samsung', 'galaxy', 'zflip', 'zfold', 'note'], 
+    ['xiaomi', 'redmi', 'poco', 'mi', 'blackshark'], 
+    ['oppo', 'reno', 'findx'], 
+    ['vivo', 'iqoo', 'nex'],
+    ['infinix', 'zero', 'hot', 'note', 'smart'], 
+    ['realme', 'narzo'],
+    ['huawei', 'honor'],
+    ['asus', 'rog', 'tuf', 'vivobook', 'zenbook'], 
+    ['acer', 'predator', 'nitro', 'swift', 'aspire'],
+    ['lenovo', 'thinkpad', 'ideapad', 'legion', 'yoga', 'loq'], 
+    ['hp', 'omen', 'pavilion', 'victus', 'envy'],
+    ['msi', 'stealth', 'katana', 'cyborg'],
+    ['honda', 'vario', 'beat', 'scoopy', 'pcx', 'supra', 'cbr', 'brio', 'jazz', 'hrv', 'crv', 'civic'], 
+    ['yamaha', 'nmax', 'aerox', 'mio', 'jupiter', 'r15', 'lexi', 'fazzio', 'grand filano'], 
+    ['suzuki', 'satria', 'gsx', 'ertiga', 'jimny'],
+    ['kawasaki', 'ninja', 'klx', 'w175'],
+    ['vespa', 'piaggio', 'sprint', 'primavera', 'gts'],
+    ['toyota', 'avanza', 'innova', 'agya', 'yaris', 'fortuner', 'rush'],
+    ['daihatsu', 'ayla', 'sigra', 'xenia', 'terios'],
+    ['kyt', 'vendetta', 'falcon', 'rc7', 'kyoto', 'galaxy'],
+    ['nhk', 'terminator', 'rx9', 'r6'],
+    ['ink', 'centro', 'clmax', 'cx22'],
+    ['bogo', 'cargloss', 'carglos'],
+    ['rsv', 'sv300', 'ff500'],
+    ['njs', 'kairoz', 'zx1'],
+    ['gm', 'bmc', 'mds'],
+    ['shoei'], ['agv'], ['arai'], ['nolan'],
+    ['nike', 'jordan', 'swoosh', 'airmax'],
+    ['adidas', 'yeezy', 'ultraboost'],
+    ['vans', 'old skool', 'sk8'],
+    ['converse', 'all star', 'chuck taylor'],
+    ['eiger', 'consina', 'arei', 'deuter', 'hydroflask'],
+    ['uniqlo'], ['h&m'], ['zara'],
+    ['bca', 'tahapan', 'xpresi', 'flazz'],
+    ['bri', 'simpedes', 'britama', 'brizzi'],
+    ['bni', 'taplus', 'tapcash'],
+    ['mandiri', 'livin', 'emoney'],
+    ['bsi', 'bsm', 'syariah'],
+    ['dior', 'sauvage', 'chanel', 'bvlgari', 'baccarat', 'kahf', 'gatsby'],
+    ['corkcicle', 'cork'],
+    ['tupperware', 'tuperware'],
+    ['locknlock', 'lock n lock', 'lock&lock'],
+    ['miniso', 'kkv'],
+    ['casio', 'citizen', 'karce', 'joyko', 'kenko', 'g-shock', 'gshock', 'baby-g', 'edifice'],
+    ['garmin', 'suunto', 'coros'],
+    ['alexandre christie', 'ac', 'expedition'],
+    ['fossil', 'daniel wellington', 'dw', 'seiko', 'alba'],
+    ['miband', 'mi band', 'huawei band', 'galaxy fit']
 ];
+
+const formatDateToString = (dateObj) => {
+    if (!dateObj) return null;
+    const d = new Date(dateObj);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const getWords = (text) => {
     if (!text) return [];
@@ -81,6 +167,19 @@ const checkMatch = (wordsA, wordsB) => {
     return matched;
 };
 
+const checkDateMatch = (date1, date2) => {
+    if (!date1 || !date2) return 0;
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    const diffTime = Math.abs(d2 - d1);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    if (diffDays === 0) return 20; 
+    if (diffDays <= 2) return 10;  
+    if (diffDays <= 7) return 5;   
+    return 0; 
+};
+
 export const runAutoSmartMatch = async (newReportId) => {
     try {
         const [newRepData] = await db.query(`
@@ -100,10 +199,12 @@ export const runAutoSmartMatch = async (newReportId) => {
 
         const myNameWords = getWords(newRep.nama_barang);
         const myDescWords = getWords(newRep.deskripsi);
+        const myLocWords = getWords(newRep.lokasi_kejadian);
 
         for (let otherRep of otherReports) {
             const otherNameWords = getWords(otherRep.nama_barang);
             const otherDescWords = getWords(otherRep.deskripsi);
+            const otherLocWords = getWords(otherRep.lokasi_kejadian);
 
             const isClashing = hasBrandClash(
                 [...myNameWords, ...myDescWords], 
@@ -116,20 +217,29 @@ export const runAutoSmartMatch = async (newReportId) => {
 
             if (titleMatches.length > 0) {
                 const descMatches = checkMatch(myDescWords, otherDescWords);
-                
-                let score = (titleMatches.length * 40) + (descMatches.length * 10);
+                const locMatches = checkMatch(myLocWords, otherLocWords);
+                const dateScore = checkDateMatch(newRep.tanggal_kejadian, otherRep.tanggal_kejadian);
+
+                let titleScore = Math.round((titleMatches.length / Math.max(myNameWords.length, 1)) * 50);
+                if (titleScore > 50) titleScore = 50;
+
+                let descScore = Math.round((descMatches.length / Math.max(myDescWords.length, 1)) * 15);
+                if (descScore > 15) descScore = 15;
+
+                let locScore = Math.round((locMatches.length / Math.max(myLocWords.length, 1)) * 15);
+                if (locScore > 15) locScore = 15;
+
+                let score = titleScore + descScore + locScore + dateScore;
                 if (score > 99) score = 99;
 
                 if (score >= 75) {
                     console.log(`🔥 Smart Match Terdeteksi! Skor: ${score}% - Mengirim email & notif...`);
                     
                     const pesanLama = `Barang temuan yang mirip dengan ${otherRep.nama_barang} telah dilaporkan! (Kecocokan: ${score}%)`;
-                    
                     await sendMatchEmail(otherRep.email, otherRep.nama_barang, score, newRep.id_laporan);
                     await db.query(`INSERT INTO NOTIFIKASI (id_user, id_laporan_terkait, pesan) VALUES (?, ?, ?)`, [otherRep.id_user, newRep.id_laporan, pesanLama]);
                     
                     const pesanBaru = `Laporan Anda cocok dengan barang ${newRep.nama_barang} yang sudah ada di sistem! (Kecocokan: ${score}%)`;
-        
                     await sendMatchEmail(newRep.email, newRep.nama_barang, score, otherRep.id_laporan);
                     await db.query(`INSERT INTO NOTIFIKASI (id_user, id_laporan_terkait, pesan) VALUES (?, ?, ?)`, [newRep.id_user, otherRep.id_laporan, pesanBaru]);
                 }
@@ -137,6 +247,83 @@ export const runAutoSmartMatch = async (newReportId) => {
         }
     } catch (error) {
         console.error("Error pada runAutoSmartMatch:", error);
+    }
+};
+
+export const getSmartMatches = async (req, res) => {
+    try {
+        const id_user = req.user.id_user;
+
+        const [myReports] = await db.query('SELECT * FROM LAPORAN WHERE id_user = ? AND status != "selesai"', [id_user]);
+        if (myReports.length === 0) return res.status(200).json([]);
+
+        const [otherReports] = await db.query(`
+            SELECT l.*, u.nama_lengkap, u.nomor_telepon 
+            FROM LAPORAN l
+            JOIN USER u ON l.id_user = u.id_user
+            WHERE l.id_user != ? AND l.status = 'published'
+        `, [id_user]);
+
+        let matchedResults = [];
+
+        myReports.forEach(myRep => {
+            otherReports.forEach(otherRep => {
+                if (myRep.tipe_laporan !== otherRep.tipe_laporan && myRep.id_kategori === otherRep.id_kategori) {
+                    
+                    const myNameWords = getWords(myRep.nama_barang);
+                    const otherNameWords = getWords(otherRep.nama_barang);
+                    const myDescWords = getWords(myRep.deskripsi);
+                    const otherDescWords = getWords(otherRep.deskripsi);
+                    const myLocWords = getWords(myRep.lokasi_kejadian);
+                    const otherLocWords = getWords(otherRep.lokasi_kejadian);
+
+                    const isClashing = hasBrandClash(
+                        [...myNameWords, ...myDescWords], 
+                        [...otherNameWords, ...otherDescWords]
+                    );
+
+                    if (isClashing) return;
+
+                    const titleMatches = checkMatch(myNameWords, otherNameWords);
+
+                    if (titleMatches.length > 0) {
+                        const descMatches = checkMatch(myDescWords, otherDescWords);
+                        const locMatches = checkMatch(myLocWords, otherLocWords);
+                        const dateScore = checkDateMatch(myRep.tanggal_kejadian, otherRep.tanggal_kejadian);
+                        
+                        let titleScore = Math.round((titleMatches.length / Math.max(myNameWords.length, 1)) * 50);
+                        if (titleScore > 50) titleScore = 50;
+
+                        let descScore = Math.round((descMatches.length / Math.max(myDescWords.length, 1)) * 15);
+                        if (descScore > 15) descScore = 15;
+
+                        let locScore = Math.round((locMatches.length / Math.max(myLocWords.length, 1)) * 15);
+                        if (locScore > 15) locScore = 15;
+
+                        let score = titleScore + descScore + locScore + dateScore;
+                        if (score > 99) score = 99;
+
+                        if (score >= 55) { 
+                            const isAlreadyMatched = matchedResults.some(m => m.match.id_laporan === otherRep.id_laporan);
+                            if (!isAlreadyMatched) {
+                                matchedResults.push({
+                                    myReportId: myRep.id_laporan,
+                                    myReportName: myRep.nama_barang,
+                                    match: otherRep,
+                                    score: score
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        matchedResults.sort((a, b) => b.score - a.score);
+        res.status(200).json(matchedResults.slice(0, 5));
+    } catch (error) {
+        console.error("Error Smart Match:", error);
+        res.status(500).json({ message: "A server error occurred" });
     }
 };
 
@@ -189,6 +376,11 @@ export const getPublicLaporan = async (req, res) => {
         `;
 
         const [laporan] = await db.query(query);
+
+        laporan.forEach(lap => {
+            lap.tanggal_kejadian = formatDateToString(lap.tanggal_kejadian);
+        });
+
         res.status(200).json(laporan);
     } catch (error) {
         console.error(error);
@@ -207,6 +399,11 @@ export const getLaporanKu = async (req, res) => {
         `;
 
         const [laporan] = await db.query(query, [id_user]);
+
+        laporan.forEach(lap => {
+            lap.tanggal_kejadian = formatDateToString(lap.tanggal_kejadian);
+        });
+
         res.status(200).json(laporan);
 
     } catch (error) {
@@ -227,6 +424,8 @@ export const getLaporanById = async (req, res) => {
         const [laporan] = await db.query(query, [id]);
         
         if (laporan.length === 0) return res.status(404).json({ message: "Report not found" });
+        
+        laporan[0].tanggal_kejadian = formatDateToString(laporan[0].tanggal_kejadian);
         
         res.status(200).json(laporan[0]);
     } catch (error) {
@@ -294,7 +493,7 @@ export const updateLaporan = async (req, res) => {
             url_foto = `/uploads/${req.file.filename}`; 
         }
 
-        const nominalImbalan = imbalan ? parseInt(imbalan) : null;
+        const nominalImbalan = imbalan ? Math.round(Number(imbalan)) : null;
 
         const query = `
             UPDATE LAPORAN 
@@ -347,68 +546,6 @@ export const getStatistikAdmin = async (req, res) => {
     } catch (error) {
         console.error("Error getStatistikAdmin:", error);
         res.status(500).json({ message: "Failed to retrieve statistical data" });
-    }
-};
-
-export const getSmartMatches = async (req, res) => {
-    try {
-        const id_user = req.user.id_user;
-
-        const [myReports] = await db.query('SELECT * FROM LAPORAN WHERE id_user = ? AND status != "selesai"', [id_user]);
-        if (myReports.length === 0) return res.status(200).json([]);
-
-        const [otherReports] = await db.query(`
-            SELECT l.*, u.nama_lengkap, u.nomor_telepon 
-            FROM LAPORAN l
-            JOIN USER u ON l.id_user = u.id_user
-            WHERE l.id_user != ? AND l.status = 'published'
-        `, [id_user]);
-
-        let matchedResults = [];
-
-        myReports.forEach(myRep => {
-            otherReports.forEach(otherRep => {
-                if (myRep.tipe_laporan !== otherRep.tipe_laporan && myRep.id_kategori === otherRep.id_kategori) {
-                    
-                    const myNameWords = getWords(myRep.nama_barang);
-                    const otherNameWords = getWords(otherRep.nama_barang);
-                    const myDescWords = getWords(myRep.deskripsi);
-                    const otherDescWords = getWords(otherRep.deskripsi);
-
-                    const isClashing = hasBrandClash(
-                        [...myNameWords, ...myDescWords], 
-                        [...otherNameWords, ...otherDescWords]
-                    );
-
-                    if (isClashing) return;
-
-                    const titleMatches = checkMatch(myNameWords, otherNameWords);
-
-                    if (titleMatches.length > 0) {
-                        const descMatches = checkMatch(myDescWords, otherDescWords);
-                        
-                        let score = (titleMatches.length * 40) + (descMatches.length * 10);
-                        if (score > 99) score = 99;
-
-                        const isAlreadyMatched = matchedResults.some(m => m.match.id_laporan === otherRep.id_laporan);
-                        if (!isAlreadyMatched) {
-                            matchedResults.push({
-                                myReportId: myRep.id_laporan,
-                                myReportName: myRep.nama_barang,
-                                match: otherRep,
-                                score: score
-                            });
-                        }
-                    }
-                }
-            });
-        });
-
-        matchedResults.sort((a, b) => b.score - a.score);
-        res.status(200).json(matchedResults.slice(0, 5));
-    } catch (error) {
-        console.error("Error Smart Match:", error);
-        res.status(500).json({ message: "A server error occurred" });
     }
 };
 

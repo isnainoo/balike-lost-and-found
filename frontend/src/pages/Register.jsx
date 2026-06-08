@@ -26,10 +26,10 @@ const Register = () => {
 
     try {
       await api.post('/auth/register', formData);
-      alert('Registrasi berhasil! Silakan login.');
+      alert('Registration successful! Please login.');
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat registrasi');
+      setError(err.response?.data?.message || 'An error occurred during registration');
     } finally {
       setIsLoading(false);
     }
@@ -54,7 +54,7 @@ const Register = () => {
             <input 
               type="text" name="nama_lengkap" required
               className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
-              placeholder="Example: Kanda Bahlila"
+              placeholder="Example: Bahlil Lahadalia"
               value={formData.nama_lengkap} onChange={handleInputChange}
             />
           </div>
@@ -64,7 +64,7 @@ const Register = () => {
             <input 
               type="email" name="email" required
               className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
-              placeholder="name@email.com"
+              placeholder="emailmu@email.com"
               value={formData.email} onChange={handleInputChange}
             />
           </div>
@@ -84,7 +84,7 @@ const Register = () => {
             <input 
               type="password" name="password" required
               className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
-              placeholder="Minimum 6 characters"
+              placeholder="as difficult as possible"
               value={formData.password} onChange={handleInputChange}
             />
           </div>
